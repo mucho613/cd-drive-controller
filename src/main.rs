@@ -1,6 +1,8 @@
 mod control;
+mod read_q_channel;
+mod toc;
 
-use std::io;
+use std::{io, time};
 
 use control::{play_cdrom_msf, stop_cdrom};
 use windows::{
@@ -13,9 +15,9 @@ use windows::{
     },
 };
 
-use crate::control::{
-    eject_cdrom, load_cdrom, pause_cdrom, read_toc, resume_cdrom, seek_cdrom_msf,
-};
+use crate::{control::{
+    eject_cdrom, load_cdrom, pause_cdrom, resume_cdrom, seek_cdrom_msf,
+}, toc::read_toc, read_q_channel::read_q_channel};
 
 fn main() {
     println!("Please input command");
@@ -29,7 +31,7 @@ fn main() {
 
     unsafe {
         let result = CreateFileW(
-            w!("\\\\.\\F:"),
+            w!("\\\\.\\D:"),
             GENERIC_READ.0 | GENERIC_WRITE.0,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             None,
@@ -72,6 +74,15 @@ fn main() {
             "resume" => {
                 println!("Resume");
                 resume_cdrom(handle);
+            }
+            "read" => {
+                println!("Read Q Channel");
+
+                let one_second = time::Duration::from_millis(1000);
+                loop {
+                    read_q_channel(handle);
+                    std::thread::sleep(one_second);
+                }
             }
             _ => {
                 println!("Unknown command.");
