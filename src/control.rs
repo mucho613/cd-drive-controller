@@ -26,7 +26,7 @@ struct CdromSeekAudioMsf {
     s: u8,
     f: u8,
 }
-pub fn play_cdrom_msf(handle: HANDLE) {
+pub fn play_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0006) << 2) | (0);
 
     let input: CdromPlayAudioMsf = CdromPlayAudioMsf {
@@ -38,10 +38,12 @@ pub fn play_cdrom_msf(handle: HANDLE) {
         end_frames: 0,
     };
 
+    let ret;
+
     unsafe {
         let input = transmute::<&CdromPlayAudioMsf, *const c_void>(&input);
 
-        DeviceIoControl(
+        ret = DeviceIoControl(
             handle,
             command,
             Some(input),
@@ -52,17 +54,21 @@ pub fn play_cdrom_msf(handle: HANDLE) {
             None
         );
     }
+
+    ret
 }
 
-pub fn seek_cdrom_msf(handle: HANDLE) {
+pub fn seek_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0001) << 2) | (0);
+
+    let ret;
 
     unsafe {
         let input = CdromSeekAudioMsf { m: 9, s: 27, f: 0 };
 
         let input = transmute::<&CdromSeekAudioMsf, *const c_void>(&input);
 
-        DeviceIoControl(
+        ret = DeviceIoControl(
             handle,
             command,
             Some(input),
@@ -73,9 +79,11 @@ pub fn seek_cdrom_msf(handle: HANDLE) {
             None
         );
     }
+
+    ret
 }
 
-pub fn eject_cdrom(handle: HANDLE) -> BOOL {
+pub fn eject_cdrom(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = IOCTL_DISK_EJECT_MEDIA;
 
     let ret;
@@ -84,10 +92,10 @@ pub fn eject_cdrom(handle: HANDLE) -> BOOL {
         ret = DeviceIoControl(handle, command, None, 0, None, 0, None, None);
     }
 
-    return ret;
+    ret
 }
 
-pub fn load_cdrom(handle: HANDLE) -> BOOL {
+pub fn load_cdrom(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = IOCTL_DISK_LOAD_MEDIA;
 
     let ret;
@@ -96,41 +104,41 @@ pub fn load_cdrom(handle: HANDLE) -> BOOL {
         ret = DeviceIoControl(handle, command, None, 0, None, 0, None, None);
     }
 
-    return ret;
+    ret
 }
 
-pub fn stop_cdrom(handle: HANDLE) -> BOOL {
+pub fn stop_cdrom(handle: HANDLE) -> Result<(), windows_core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0002) << 2) | (0);
 
-    let ret: BOOL;
+    let ret;
 
     unsafe {
         ret = DeviceIoControl(handle, command, None, 0, None, 0, None, None);
     }
 
-    return ret;
+    ret
 }
 
-pub fn pause_cdrom(handle: HANDLE) -> BOOL {
+pub fn pause_cdrom(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0003) << 2) | (0);
 
-    let ret: BOOL;
+    let ret;
 
     unsafe {
         ret = DeviceIoControl(handle, command, None, 0, None, 0, None, None);
     }
 
-    return ret;
+    ret
 }
 
-pub fn resume_cdrom(handle: HANDLE) -> BOOL {
+pub fn resume_cdrom(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0004) << 2) | (0);
 
-    let ret: BOOL;
+    let ret;
 
     unsafe {
         ret = DeviceIoControl(handle, command, None, 0, None, 0, None, None);
     }
 
-    return ret;
+    ret
 }

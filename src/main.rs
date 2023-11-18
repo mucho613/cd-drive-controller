@@ -6,13 +6,12 @@ use std::{io, time};
 
 use control::{play_cdrom_msf, stop_cdrom};
 use windows::{
-    w,
     Win32::{
         Foundation::*,
         Storage::FileSystem::{
             CreateFileW, FILE_ATTRIBUTE_READONLY, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
         },
-    },
+    }, core::w,
 };
 
 use crate::{control::{
@@ -45,42 +44,42 @@ fn main() {
         match command {
             "play" => {
                 println!("Start playing...");
-                play_cdrom_msf(handle);
+                play_cdrom_msf(handle).unwrap();
             }
             "stop" => {
                 println!("Stop");
-                stop_cdrom(handle);
+                stop_cdrom(handle).unwrap();
             }
             "toc" => {
                 println!("Read TOC");
-                read_toc(handle);
+                read_toc(handle).unwrap();
             }
             "seek" => {
                 println!("Seek to top");
-                seek_cdrom_msf(handle);
+                seek_cdrom_msf(handle).unwrap();
             }
             "pause" => {
                 println!("Pause");
-                pause_cdrom(handle);
+                pause_cdrom(handle).unwrap();
             }
             "eject" => {
                 println!("Eject disc");
-                eject_cdrom(handle);
+                eject_cdrom(handle).unwrap();
             }
             "load" => {
                 println!("Load disc");
-                load_cdrom(handle);
+                load_cdrom(handle).unwrap();
             }
             "resume" => {
                 println!("Resume");
-                resume_cdrom(handle);
+                resume_cdrom(handle).unwrap();
             }
             "read" => {
                 println!("Read Q Channel");
 
                 let one_second = time::Duration::from_millis(1000);
                 loop {
-                    read_q_channel(handle);
+                    read_q_channel(handle).unwrap();
                     std::thread::sleep(one_second);
                 }
             }
@@ -89,6 +88,6 @@ fn main() {
             }
         }
 
-        CloseHandle(handle);
+        CloseHandle(handle).unwrap();
     }
 }

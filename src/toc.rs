@@ -28,10 +28,10 @@ struct CdromTOC {
     track_data: [TrackData; MAXIMUM_NUMBER_TRACKS],
 }
 
-pub fn read_toc(handle: HANDLE) -> BOOL {
+pub fn read_toc(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0000) << 2) | (0);
 
-    let ret: BOOL;
+    let ret;
 
     unsafe {
         let mut output: CdromTOC = { mem::zeroed() };
@@ -54,5 +54,5 @@ pub fn read_toc(handle: HANDLE) -> BOOL {
         println!("Output: {:#?}", output.track_data[0]);
     }
 
-    return ret;
+    ret
 }

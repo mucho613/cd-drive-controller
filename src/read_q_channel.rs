@@ -46,10 +46,10 @@ struct SubQCurrentPosition {
     track_relative_address: [u8; 4]
 }
 
-pub fn read_q_channel(handle: HANDLE) -> BOOL {
+pub fn read_q_channel(handle: HANDLE) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x000b) << 2) | (0);
 
-    let ret: BOOL;
+    let ret;
 
     let input = CdromSubQDataFormat {
         format: IOCTL_CDROM_CURRENT_POSITION,
@@ -100,5 +100,5 @@ pub fn read_q_channel(handle: HANDLE) -> BOOL {
         );
     }
 
-    return ret;
+    ret
 }
