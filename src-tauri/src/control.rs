@@ -1,13 +1,11 @@
 use std::{
     ffi::c_void,
-    mem::{transmute, self},
+    mem::{self, transmute},
 };
-use windows::Win32::{
-    Foundation::*,
-    System::{
-        Ioctl::{IOCTL_DISK_EJECT_MEDIA, IOCTL_DISK_LOAD_MEDIA},
-        IO::DeviceIoControl,
-    },
+use windows::Win32::Foundation::HANDLE;
+use windows::Win32::System::{
+    Ioctl::{IOCTL_DISK_EJECT_MEDIA, IOCTL_DISK_LOAD_MEDIA},
+    IO::DeviceIoControl,
 };
 
 #[repr(C)]
@@ -51,7 +49,7 @@ pub fn play_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
             None,
             0,
             None,
-            None
+            None,
         );
     }
 
@@ -76,7 +74,7 @@ pub fn seek_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
             None,
             0,
             None,
-            None
+            None,
         );
     }
 

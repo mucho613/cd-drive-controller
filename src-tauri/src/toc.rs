@@ -1,11 +1,8 @@
 use std::{
     ffi::c_void,
-    mem::{transmute, self},
+    mem::{self, transmute},
 };
-use windows::Win32::{
-    Foundation::*,
-    System::IO::DeviceIoControl,
-};
+use windows::Win32::{Foundation::HANDLE, System::IO::DeviceIoControl};
 
 const MAXIMUM_NUMBER_TRACKS: usize = 100;
 
@@ -46,12 +43,12 @@ pub fn read_toc(handle: HANDLE) -> Result<(), windows::core::Error> {
             Some(output_ref),
             mem::size_of::<CdromTOC>() as u32,
             None,
-            None
+            None,
         );
 
         let output = transmute::<*mut c_void, &CdromTOC>(output_ref);
 
-        println!("Output: {:#?}", output.track_data[0]);
+        println!("Output: {:#?}", output.track_data[1]);
     }
 
     ret

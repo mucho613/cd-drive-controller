@@ -1,33 +1,34 @@
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod control;
 mod read_q_channel;
 mod toc;
 
-use std::{io, time};
-
-use control::{play_cdrom_msf, stop_cdrom};
-use windows::{
-    Win32::{
-        Foundation::*,
-        Storage::FileSystem::{
-            CreateFileW, FILE_ATTRIBUTE_READONLY, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
-        },
-    }, core::w,
+use windows::Win32::{
+    Foundation::{CloseHandle, GENERIC_READ, GENERIC_WRITE},
+    Storage::FileSystem::{
+        CreateFileW, FILE_ATTRIBUTE_READONLY, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
+    },
 };
 
-use crate::{control::{
-    eject_cdrom, load_cdrom, pause_cdrom, resume_cdrom, seek_cdrom_msf,
-}, toc::read_toc, read_q_channel::read_q_channel};
+use control::{play_cdrom_msf, stop_cdrom};
+use windows_core::w;
 
-fn main() {
-    println!("Please input command");
+use crate::{
+    control::{eject_cdrom, load_cdrom, pause_cdrom, resume_cdrom, seek_cdrom_msf},
+    read_q_channel::read_q_channel,
+    toc::read_toc,
+};
 
-    let mut buffer = String::new(); // 入力用のバッファ
-    io::stdin()
-        .read_line(&mut buffer)
-        .expect("Failed to read line");
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+#[tauri::command]
+fn greet(name: &str) -> String {
+    command(name);
+    format!("{} OK.", name)
+}
 
-    let command = buffer.trim();
-
+fn command(command: &str) {
     unsafe {
         let result = CreateFileW(
             w!("\\\\.\\D:"),
@@ -76,18 +77,20 @@ fn main() {
             }
             "read" => {
                 println!("Read Q Channel");
-
-                let one_second = time::Duration::from_millis(1000);
-                loop {
-                    read_q_channel(handle).unwrap();
-                    std::thread::sleep(one_second);
-                }
+                read_q_channel(handle).unwrap();
             }
             _ => {
                 println!("Unknown command.");
             }
         }
 
-        CloseHandle(handle).unwrap();
+        let _ = CloseHandle(handle);
     }
+}
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![greet])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
