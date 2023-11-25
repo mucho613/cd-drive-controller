@@ -1,19 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod cd_drive;
 mod control;
 mod read_q_channel;
 mod toc;
 
-use windows::Win32::{
-    Foundation::{CloseHandle, GENERIC_READ, GENERIC_WRITE},
-    Storage::FileSystem::{
-        CreateFileW, FILE_ATTRIBUTE_READONLY, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
-    },
-};
+use cd_drive::get_file_handle;
+use read_q_channel::CdDriveStatus;
+use toc::Toc;
+use windows::Win32::Foundation::CloseHandle;
 
 use control::{play_cdrom_msf, stop_cdrom};
-use windows_core::w;
 
 use crate::{
     control::{eject_cdrom, load_cdrom, pause_cdrom, resume_cdrom, seek_cdrom_msf},
@@ -23,74 +21,83 @@ use crate::{
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    command(name);
-    format!("{} OK.", name)
+fn command(command: &str) -> () {
+    exec_ioctl(command);
 }
 
-fn command(command: &str) {
+#[tauri::command]
+fn get_toc() -> Toc {
+    let handle = get_file_handle();
+    let toc = read_toc(handle).unwrap();
     unsafe {
-        let result = CreateFileW(
-            w!("\\\\.\\D:"),
-            GENERIC_READ.0 | GENERIC_WRITE.0,
-            FILE_SHARE_READ | FILE_SHARE_WRITE,
-            None,
-            OPEN_EXISTING,
-            FILE_ATTRIBUTE_READONLY,
-            None,
-        );
+        let _ = CloseHandle(handle);
+    }
+    toc
+}
 
-        let handle = result.unwrap();
+#[tauri::command]
+fn get_play_time() -> CdDriveStatus {
+    let handle = get_file_handle();
+    let cd_drive_status = read_q_channel(handle).unwrap();
+    unsafe {
+        let _ = CloseHandle(handle);
+    }
+    cd_drive_status
+}
 
-        match command {
-            "play" => {
-                println!("Start playing...");
-                play_cdrom_msf(handle).unwrap();
-            }
-            "stop" => {
-                println!("Stop");
-                stop_cdrom(handle).unwrap();
-            }
-            "toc" => {
-                println!("Read TOC");
-                read_toc(handle).unwrap();
-            }
-            "seek" => {
-                println!("Seek to top");
-                seek_cdrom_msf(handle).unwrap();
-            }
-            "pause" => {
-                println!("Pause");
-                pause_cdrom(handle).unwrap();
-            }
-            "eject" => {
-                println!("Eject disc");
-                eject_cdrom(handle).unwrap();
-            }
-            "load" => {
-                println!("Load disc");
-                load_cdrom(handle).unwrap();
-            }
-            "resume" => {
-                println!("Resume");
-                resume_cdrom(handle).unwrap();
-            }
-            "read" => {
-                println!("Read Q Channel");
-                read_q_channel(handle).unwrap();
-            }
-            _ => {
-                println!("Unknown command.");
-            }
+fn exec_ioctl(command: &str) {
+    let handle = get_file_handle();
+
+    match command {
+        "play" => {
+            println!("Start playing...");
+            play_cdrom_msf(handle).unwrap();
         }
+        "stop" => {
+            println!("Stop");
+            stop_cdrom(handle).unwrap();
+        }
+        "toc" => {
+            println!("Read TOC");
+            read_toc(handle).unwrap();
+        }
+        "seek" => {
+            println!("Seek to top");
+            seek_cdrom_msf(handle).unwrap();
+        }
+        "pause" => {
+            println!("Pause");
+            pause_cdrom(handle).unwrap();
+        }
+        "eject" => {
+            println!("Eject disc");
+            eject_cdrom(handle).unwrap();
+        }
+        "load" => {
+            println!("Load disc");
+            load_cdrom(handle).unwrap();
+        }
+        "resume" => {
+            println!("Resume");
+            resume_cdrom(handle).unwrap();
+        }
+        "read" => {
+            println!("Read Q Channel");
+            read_q_channel(handle).unwrap();
+        }
+        _ => {
+            println!("Unknown command.");
+        }
+    }
 
+    unsafe {
         let _ = CloseHandle(handle);
     }
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![command, get_play_time, get_toc])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

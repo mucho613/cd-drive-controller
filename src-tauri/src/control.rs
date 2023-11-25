@@ -29,7 +29,7 @@ pub fn play_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
 
     let input: CdromPlayAudioMsf = CdromPlayAudioMsf {
         start_minutes: 0,
-        start_seconds: 0,
+        start_seconds: 2,
         start_frames: 0,
         end_minutes: 80,
         end_seconds: 0,

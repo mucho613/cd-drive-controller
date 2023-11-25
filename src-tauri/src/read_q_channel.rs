@@ -45,7 +45,22 @@ struct SubQCurrentPosition {
     track_relative_address: [u8; 4],
 }
 
-pub fn read_q_channel(handle: HANDLE) -> Result<(), windows::core::Error> {
+#[derive(serde::Serialize)]
+pub struct CdDriveStatus {
+    track_number: u8,
+    index_number: u8,
+    absolute_play_time: PlayTime,
+    track_relative_play_time: PlayTime,
+}
+
+#[derive(serde::Serialize)]
+pub struct PlayTime {
+    pub minutes: u8,
+    pub seconds: u8,
+    pub frames: u8,
+}
+
+pub fn read_q_channel(handle: HANDLE) -> Result<CdDriveStatus, windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x000b) << 2) | (0);
 
     let ret;
@@ -84,21 +99,20 @@ pub fn read_q_channel(handle: HANDLE) -> Result<(), windows::core::Error> {
             AUDIO_STATUS_NO_STATUS => println!("No status"),
             _ => println!("Unknown status"),
         }
-        println!(
-            "Track: {}, Index: {}",
-            output.track_number, output.index_number
-        );
-        println!(
-            "Absolute time: {:>2}:{:02}.{:02}",
-            output.absolute_address[1], output.absolute_address[2], output.absolute_address[3],
-        );
-        println!(
-            "Track relative time: {:>2}:{:02}.{:02}",
-            output.track_relative_address[1],
-            output.track_relative_address[2],
-            output.track_relative_address[3],
-        );
-    }
 
-    ret
+        Ok(CdDriveStatus {
+            track_number: output.track_number,
+            index_number: output.index_number,
+            absolute_play_time: PlayTime {
+                minutes: output.absolute_address[1],
+                seconds: output.absolute_address[2],
+                frames: output.absolute_address[3],
+            },
+            track_relative_play_time: PlayTime {
+                minutes: output.track_relative_address[1],
+                seconds: output.track_relative_address[2],
+                frames: output.track_relative_address[3],
+            },
+        })
+    }
 }
