@@ -35,20 +35,25 @@ export function LcdDisplay() {
     }
 
     return (
-        <div class="flex flex-row">
+        <div class="flex justify-center gap-4 w-full py-4 bg-black text-white">
             <dl>
-                <dt>Track number</dt>
-                <dd class="7seg">{cdDriveStatus()?.track_number}</dd>
-
-                <dt>Index number</dt>
-                <dd class="7seg">{cdDriveStatus()?.index_number}</dd>
-
-                <dt>Play time</dt>
-                <dd class="7seg">
-                    {cdDriveStatus()?.index_number === 0 ? "-" : ""}
-                    {cdDriveStatus()
-                        ?.track_relative_play_time.minutes.toString()
-                        .padStart(2, "0")}
+                <dt class="uppercase">Track number</dt>
+                <dd class="font-14seg italic text-3xl">
+                    {cdDriveStatus()?.track_number}
+                </dd>
+            </dl>
+            <dl>
+                <dt class="uppercase">Index number</dt>
+                <dd class="font-14seg italic text-3xl">
+                    {cdDriveStatus()?.index_number}
+                </dd>
+            </dl>
+            <dl>
+                <dt class="uppercase">Play time</dt>
+                <dd class="font-14seg italic text-3xl">
+                    {`${cdDriveStatus()?.index_number === 0 ? "-" : ""}${
+                        cdDriveStatus()?.track_relative_play_time.minutes
+                    }`.padStart(3, "!")}
                     :
                     {cdDriveStatus()
                         ?.track_relative_play_time.seconds.toString()

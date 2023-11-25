@@ -5,7 +5,7 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      '7seg': 'DSEG7 Classic'
+      '14seg': ['DSEG14 Classic']
     },
     extend: {},
   },
