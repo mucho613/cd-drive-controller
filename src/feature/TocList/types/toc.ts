@@ -1,11 +1,11 @@
 type Toc = {
-  firstTrackNumber: number;
-  lastTrackNumber: number;
-  trackData: TrackData[];
-}
+    firstTrackNumber: number;
+    lastTrackNumber: number;
+    trackData: TrackData[];
+};
 
 type TrackData = {
-  minutes: number;
-  seconds: number;
-  frames: number;
-}
+    minutes: number;
+    seconds: number;
+    frames: number;
+};
