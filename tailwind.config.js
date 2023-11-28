@@ -5,7 +5,7 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      '14seg': ['DSEG14 Classic']
+      '14seg': ['DSEG14 Classic Mini']
     },
     extend: {},
   },

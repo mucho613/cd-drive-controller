@@ -11,7 +11,7 @@ use windows_core::w;
 pub fn get_file_handle() -> HANDLE {
     unsafe {
         let result = CreateFileW(
-            w!("\\\\.\\D:"),
+            w!("\\\\.\\F:"),
             GENERIC_READ.0 | GENERIC_WRITE.0,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             None,

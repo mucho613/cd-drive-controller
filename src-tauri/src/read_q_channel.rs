@@ -47,6 +47,7 @@ struct SubQCurrentPosition {
 
 #[derive(serde::Serialize)]
 pub struct CdDriveStatus {
+    status: String,
     track_number: u8,
     index_number: u8,
     absolute_play_time: PlayTime,
@@ -90,17 +91,19 @@ pub fn read_q_channel(handle: HANDLE) -> Result<CdDriveStatus, windows::core::Er
 
         let output = transmute::<*mut c_void, &SubQCurrentPosition>(output_ref);
 
-        match output.header.audio_status {
-            AUDIO_STATUS_NOT_SUPPORTED => println!("Not supported"),
-            AUDIO_STATUS_IN_PROGRESS => println!("In progress"),
-            AUDIO_STATUS_PAUSED => println!("Paused"),
-            AUDIO_STATUS_PLAY_COMPLETE => println!("Play complete"),
-            AUDIO_STATUS_PLAY_ERROR => println!("Play error"),
-            AUDIO_STATUS_NO_STATUS => println!("No status"),
-            _ => println!("Unknown status"),
+        let status = match output.header.audio_status {
+            AUDIO_STATUS_NOT_SUPPORTED => "Not supported",
+            AUDIO_STATUS_IN_PROGRESS => "Playing",
+            AUDIO_STATUS_PAUSED => "Paused",
+            AUDIO_STATUS_PLAY_COMPLETE => "Play complete",
+            AUDIO_STATUS_PLAY_ERROR => "Play error",
+            AUDIO_STATUS_NO_STATUS => "No status",
+            _ => "Unknown status",
         }
+        .to_string();
 
         Ok(CdDriveStatus {
+            status: status,
             track_number: output.track_number,
             index_number: output.index_number,
             absolute_play_time: PlayTime {

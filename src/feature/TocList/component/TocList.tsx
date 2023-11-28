@@ -1,19 +1,19 @@
-type Props = {
-    toc: Toc;
-};
+import { useToc } from "../../../useTocContext";
 
-export function TocList(props: Props) {
-    return (
-        <section>
-            <h2>TOC</h2>
-            <ol>
-                {props.toc.trackData.map((track) => (
-                    <li>
-                        {track.minutes.toString().padStart(2, " ")}:
-                        {track.seconds.toString().padStart(2, "0")}
-                    </li>
-                ))}
-            </ol>
-        </section>
-    );
+export function TocList() {
+  // const [toc, { setToc }] = useToc();
+
+  return (
+    <section>
+      <h2>TOC</h2>
+      <ol>
+        {/* {props.toc.trackData.map((track) => (
+          <li>
+            {track.minutes.toString().padStart(2, " ")}:
+            {track.seconds.toString().padStart(2, "0")}
+          </li>
+        ))} */}
+      </ol>
+    </section>
+  );
 }

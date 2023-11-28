@@ -6,7 +6,7 @@ use windows::Win32::{Foundation::HANDLE, System::IO::DeviceIoControl};
 
 use crate::read_q_channel::PlayTime;
 
-const MAXIMUM_NUMBER_TRACKS: usize = 100;
+const MAXIMUM_NUMBER_TRACKS: usize = 99;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -37,14 +37,12 @@ pub struct Toc {
 pub fn read_toc(handle: HANDLE) -> Result<Toc, windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0000) << 2) | (0);
 
-    let ret;
-
     unsafe {
         let mut output: CdromTOC = { mem::zeroed() };
 
         let output_ref = transmute::<&CdromTOC, *mut c_void>(&mut output);
 
-        ret = DeviceIoControl(
+        DeviceIoControl(
             handle,
             command,
             None,
@@ -53,7 +51,8 @@ pub fn read_toc(handle: HANDLE) -> Result<Toc, windows::core::Error> {
             mem::size_of::<CdromTOC>() as u32,
             None,
             None,
-        );
+        )
+        .unwrap();
 
         let cdrom_toc = transmute::<*mut c_void, &CdromTOC>(output_ref);
 

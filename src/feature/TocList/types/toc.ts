@@ -1,11 +1,11 @@
-type Toc = {
-    firstTrackNumber: number;
-    lastTrackNumber: number;
-    trackData: TrackData[];
+export type Toc = {
+  firstTrackNumber: number;
+  lastTrackNumber: number;
+  trackData: TrackData[];
 };
 
-type TrackData = {
-    minutes: number;
-    seconds: number;
-    frames: number;
+export type TrackData = {
+  minutes: number;
+  seconds: number;
+  frames: number;
 };
