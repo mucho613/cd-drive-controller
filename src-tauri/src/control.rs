@@ -8,6 +8,8 @@ use windows::Win32::System::{
     IO::DeviceIoControl,
 };
 
+use crate::read_q_channel::PlayTime;
+
 #[repr(C)]
 struct CdromPlayAudioMsf {
     start_minutes: u8,
@@ -24,13 +26,13 @@ struct CdromSeekAudioMsf {
     s: u8,
     f: u8,
 }
-pub fn play_cdrom_msf(handle: HANDLE) -> Result<(), windows::core::Error> {
+pub fn play_cdrom_msf(handle: HANDLE, play_time: PlayTime) -> Result<(), windows::core::Error> {
     let command = ((0x00000002) << 16) | ((0x0001) << 14) | ((0x0006) << 2) | (0);
 
     let input: CdromPlayAudioMsf = CdromPlayAudioMsf {
-        start_minutes: 0,
-        start_seconds: 2,
-        start_frames: 0,
+        start_minutes: play_time.minutes,
+        start_seconds: play_time.seconds,
+        start_frames: play_time.frames,
         end_minutes: 80,
         end_seconds: 0,
         end_frames: 0,

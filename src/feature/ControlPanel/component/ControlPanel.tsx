@@ -1,49 +1,31 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { createSignal } from "solid-js";
-
-type Toc = {
-  firstTrackNumber: number;
-  lastTrackNumber: number;
-  trackData: TrackData[];
-};
-
-type TrackData = {
-  minutes: number;
-  seconds: number;
-  frames: number;
-};
+import { useToc } from "../../../tocContext";
+import { Toc } from "../../TocList/types/toc";
+import { play } from "../../TocList/component/TocList";
+import { Button } from "./Button";
 
 export function ControlPanel() {
-  const [commandResult, setCommandResult] = createSignal("");
-  const [command, setCommand] = createSignal("");
+  const toc = useToc();
 
-  const [toc, setToc] = createSignal<Toc | null>(null);
-
-  async function sendCommand() {
-    setCommandResult(await invoke("command", { command: command() }));
+  async function sendCommand(command: string) {
+    await invoke("command", { command });
   }
 
   async function getToc() {
-    const toc = (await invoke("get_toc")) as Toc;
-    setToc(toc);
+    if (!toc) return;
+    const tocData = await invoke<Toc>("get_toc");
+    toc[1](tocData);
   }
 
-  return (
-    <>
-      <input onChange={(e) => setCommand(e.currentTarget.value)} />
-      <button type="button" onClick={sendCommand}>
-        Send
-      </button>
-      <p>{commandResult()}</p>
+  if (!toc) return null;
+  const tocData = toc[0]();
 
-      <button type="button">Prev track</button>
-      <button type="button">Play / Pause</button>
-      <button type="button">Stop</button>
-      <button type="button">Next track</button>
-      <button type="button">Eject</button>
-      <button type="button" onClick={getToc}>
-        Get TOC
-      </button>
-    </>
+  return (
+    <div class="flex justify-between w-[300px] mx-auto">
+      {tocData && <Button label={"Play"} onClick={() => play(tocData, 0)} />}
+      <Button label="Stop" onClick={() => sendCommand("stop")} />
+      <Button label="Eject" onClick={() => sendCommand("eject")} />
+      <Button label="Get TOC" onClick={getToc} />
+    </div>
   );
 }

@@ -6,7 +6,7 @@ use windows::Win32::{Foundation::HANDLE, System::IO::DeviceIoControl};
 
 use crate::read_q_channel::PlayTime;
 
-const MAXIMUM_NUMBER_TRACKS: usize = 99;
+const MAXIMUM_NUMBER_TRACKS: usize = 100;
 
 #[repr(C)]
 #[derive(Debug)]

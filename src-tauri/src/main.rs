@@ -7,7 +7,7 @@ mod read_q_channel;
 mod toc;
 
 use cd_drive::get_file_handle;
-use read_q_channel::CdDriveStatus;
+use read_q_channel::{CdDriveStatus, PlayTime};
 use toc::Toc;
 use windows::Win32::Foundation::CloseHandle;
 
@@ -45,21 +45,22 @@ fn get_play_time() -> CdDriveStatus {
     cd_drive_status
 }
 
+#[tauri::command]
+fn play(play_time: PlayTime) -> () {
+    let handle = get_file_handle();
+    play_cdrom_msf(handle, play_time).unwrap();
+    unsafe {
+        let _ = CloseHandle(handle);
+    }
+}
+
 fn exec_ioctl(command: &str) {
     let handle = get_file_handle();
 
     match command {
-        "play" => {
-            println!("Start playing...");
-            play_cdrom_msf(handle).unwrap();
-        }
         "stop" => {
             println!("Stop");
             stop_cdrom(handle).unwrap();
-        }
-        "toc" => {
-            println!("Read TOC");
-            read_toc(handle).unwrap();
         }
         "seek" => {
             println!("Seek to top");
@@ -97,7 +98,12 @@ fn exec_ioctl(command: &str) {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![command, get_play_time, get_toc])
+        .invoke_handler(tauri::generate_handler![
+            play,
+            command,
+            get_play_time,
+            get_toc
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

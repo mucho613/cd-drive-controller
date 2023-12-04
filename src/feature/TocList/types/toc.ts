@@ -1,7 +1,7 @@
 export type Toc = {
-  firstTrackNumber: number;
-  lastTrackNumber: number;
-  trackData: TrackData[];
+  first_track_number: number;
+  last_track_number: number;
+  track_data: TrackData[];
 };
 
 export type TrackData = {

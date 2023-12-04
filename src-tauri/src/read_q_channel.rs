@@ -54,7 +54,7 @@ pub struct CdDriveStatus {
     track_relative_play_time: PlayTime,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct PlayTime {
     pub minutes: u8,
     pub seconds: u8,

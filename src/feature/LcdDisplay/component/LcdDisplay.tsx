@@ -75,23 +75,26 @@ export function LcdDisplay() {
 
   return (
     <div class="flex justify-center gap-4 w-full py-4 bg-black text-white">
-      <p class="font-14seg font-light italic text-3xl">
-        {cdDriveStatus()?.status}
-      </p>
       <dl>
-        <dt class="uppercase">Track number</dt>
+        <dt class="uppercase text-sm">Status</dt>
+        <dd class="font-14seg font-light italic text-xl">
+        {cdDriveStatus()?.status}
+        </dd>
+      </dl>
+      <dl>
+        <dt class="uppercase text-sm">Track</dt>
         <dd class="font-14seg font-light italic text-3xl">
           {cdDriveStatus()?.track_number}
         </dd>
       </dl>
       <dl>
-        <dt class="uppercase">Index number</dt>
+        <dt class="uppercase text-sm">Index</dt>
         <dd class="font-14seg font-light italic text-xl">
           {cdDriveStatus()?.index_number}
         </dd>
       </dl>
       <dl>
-        <dt class="uppercase">Play time</dt>
+        <dt class="uppercase text-sm">Min</dt>
         <dd class="font-14seg font-light italic text-3xl">
           {`${cdDriveStatus()?.index_number === 0 ? "-" : ""}${
             guessedPlayTime()?.minutes
